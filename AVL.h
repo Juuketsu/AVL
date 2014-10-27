@@ -1,6 +1,7 @@
 #define		LEFT	true
 #define		RIGHT	false
 #include <iostream>
+#include <fstream>
 
 class AVL
 {
@@ -9,25 +10,27 @@ class AVL
 		AVL * 	m_rightSon = NULL;
 		int 	m_height;
 		int 	m_value;
-		int max (int a, int b);
+		int max (int, int);
+		void exportRecursive (std::ofstream&);
 		
 	public :
 		AVL (int value);
 		AVL ();
-		void 	insert		(int value);
-		bool 	isIn		(int value);
-		void	display		();
-		AVL *	joint		(AVL * a1, int n, AVL * a2);
-		AVL	*	jointLeft	(AVL * g, int n, AVL * d);
-		AVL *	jointRight	(AVL * g, int n, AVL * d);
+		void 		insert		(int);
+		bool 		isIn		(int);
+		void		display		();
+		void		exportAVL	();
+		AVL *		joint		(AVL *, int, AVL *);
+		AVL	*		jointLeft	(AVL *, int, AVL *);
+		AVL *		jointRight	(AVL *, int, AVL *);
 		
 		// Setter, getter etc..
-		void 	setLeft 	(AVL * avlToAdd);
+		void 	setLeft 	(AVL *);
 		AVL *	getLeft		();
-		void 	setRight	(AVL * avlToAdd);
+		void 	setRight	(AVL *);
 		AVL *	getRight	();
-		void	setHeight	(int height);
+		void	setHeight	(int);
 		int		getHeight	();
-		void	setValue	(int value);
+		void	setValue	(int);
 		int		getValue	();
 };

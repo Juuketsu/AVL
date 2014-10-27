@@ -1,4 +1,3 @@
-#include <iostream>
 #include <unistd.h>
 #include <cmath>
 #include <list>
@@ -9,6 +8,8 @@ AVL::AVL (int value)
 {
 	setValue (value);
 	setHeight (1);
+	m_leftSon = new AVL;
+	m_rightSon = new AVL;
 }
 
 AVL::AVL ()
@@ -23,6 +24,8 @@ void AVL::insert (int value)
 	{
 		setValue (value);
 		setHeight (1);
+		m_leftSon = new AVL;
+		m_rightSon = new AVL;
 		return;
 	}
 	
@@ -32,11 +35,6 @@ void AVL::insert (int value)
 					<< std::endl;
 		return;
 	}
-	
-	if (getLeft() == NULL)
-		m_leftSon = new AVL;
-	if (getRight() == NULL)
-		m_rightSon = new AVL;
 	
 	if (value < getValue())
 	{
@@ -51,6 +49,10 @@ void AVL::insert (int value)
 	{
 		getRight()->insert(value);
 		AVL * temp = jointRight (getLeft(), getValue(), getRight());
+		setValue (temp->getValue());
+		setHeight (temp->getHeight());
+		setRight (temp->getRight());
+		setLeft (temp->getLeft());
 	}
 }
 
@@ -59,7 +61,7 @@ AVL * AVL::joint (AVL * a1, int n, AVL * a2)
 	AVL * temp = new AVL (n);
 	temp->setRight (a2);
 	temp->setLeft (a1);
-	temp->setHeight (max (a1->getHeight(), a2->getHeight()));
+	temp->setHeight (max (a1->getHeight(), a2->getHeight()) + 1);
 	return temp;
 }
 
@@ -83,21 +85,60 @@ AVL * AVL::jointRight (AVL * g, int n, AVL * d)
 		return joint (g, n, d);
 	
 	if (d->getRight()->getHeight() == d->getHeight() - 1) // cas 1
+	{
 		return joint (joint (g, n, d->getLeft()), d->getValue(), d->getRight());
+	}
 	
 	// cas 2
-	return joint (joint (d->getRight(), d->getValue(), d->getLeft()->getRight()),
+	return joint (joint (g, n, d->getLeft()->getLeft()),
 				  d->getLeft()->getValue(),
-				  joint (g, n, d->getLeft()->getLeft()));
+				  joint (d->getLeft()->getRight(), d->getValue(), d->getRight()));
 }
 
 void AVL::display ()
 {
-	std::cout << getValue () << "(" << getHeight() << ") ; ";
-	if (getLeft() != NULL)
-		getLeft()->display();
-	if (getRight() != NULL)
-		getRight()->display();
+	if (getValue() > 0)
+	{
+		std::cout << getValue () << "(" << getHeight() << ") ; ";
+		if (getLeft() != NULL)
+			getLeft()->display();
+		if (getRight() != NULL)
+			getRight()->display();
+	}
+}
+
+void AVL::exportRecursive (std::ofstream& fileOut)
+{
+	if (getLeft()->getValue() != -1)
+	{
+		fileOut << getValue() << " -> " << getLeft()->getValue() << std::endl;
+		getLeft()->exportRecursive (fileOut);
+	}
+	
+	if (getRight()->getValue() != -1)
+	{
+		fileOut << getValue() << " -> " << getRight()->getValue() << std::endl;
+		getRight()->exportRecursive (fileOut);
+	}
+		
+	
+}
+
+void AVL::exportAVL ()
+{
+	std::ofstream fileOut ("AVL.dot", std::ios::out | std::ios::trunc);
+	if (!fileOut)
+	{
+		std::cout 	<< "Problème lors de la création du fichier de sortie"
+					<< std::endl;
+		return;
+	}
+	fileOut << "digraph G{" << std::endl
+			<< "graph [ordering=\"out\"];" << std::endl;
+	exportRecursive (fileOut);
+	fileOut << "}";
+	fileOut.close ();
+	
 }
 
 
